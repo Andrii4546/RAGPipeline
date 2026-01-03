@@ -1,0 +1,87 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: rag_qdrant
+    ports:
+      - "6333:6333"  # REST API
+      - "6334:6334"  # gRPC API
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    # Health check removed - Qdrant starts quickly and API will retry connections
+    # Uncomment below if you want to add a health check (requires curl/wget in container)
+    # healthcheck:
+    #   test: ["CMD-SHELL", "curl -f http://localhost:6333/health || exit 1"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+    #   start_period: 10s
+    networks:
+      - rag_network
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: rag_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - rag_network
+    restart: unless-stopped
+    # Health check removed - Ollama may take time to start, API will retry connections
+    # Uncomment below if you want to add a health check (requires curl/wget in container)
+    # healthcheck:
+    #   test: ["CMD-SHELL", "curl -f http://localhost:11434/api/tags || exit 1"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+    #   start_period: 30s
+
+  rag_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag_api
+    ports:
+      - "5002:5002"
+    environment:
+      - QDRANT_URL=http://qdrant:6333
+      - OLLAMA_HOST=ollama:11434
+      - COLLECTION_NAME=rag_pipeline
+      - CHUNK_SIZE=20
+      - CHUNK_OVERLAP=0
+      - WHISPER_MODEL=base
+      - LLM_MODEL=llama3.2:1b
+      - FLASK_ENV=production
+    volumes:
+      - ./models:/app/models  # For Whisper models cache
+      - ./hf_cache:/root/.cache/huggingface  # For Hugging Face models cache (local directory)
+      - uploads:/tmp/uploads   # For temporary file uploads
+    depends_on:
+      - qdrant
+      - ollama
+    networks:
+      - rag_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5002/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  qdrant_storage:
+    driver: local
+  ollama_data:
+    driver: local
+  uploads:
+    driver: local
+
+networks:
+  rag_network:
+    driver: bridge
+

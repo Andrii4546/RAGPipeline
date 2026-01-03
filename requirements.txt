@@ -1,0 +1,29 @@
+# RAG Pipeline Dependencies
+
+# PDF Processing
+langchain-community>=0.0.20
+langchain-core>=0.1.0
+langchain-text-splitters>=0.0.1
+pypdf>=3.0.0
+
+# Speech-to-Text
+openai-whisper>=20231117
+
+# Embeddings
+sentence-transformers>=2.2.0
+torch>=2.0.0
+
+# Vector Database
+qdrant-client>=1.7.0
+
+# LLM
+ollama>=0.1.0
+
+# REST API
+flask>=2.3.0
+werkzeug>=2.3.0
+requests>=2.31.0
+
+# Utilities
+numpy>=1.24.0
+
