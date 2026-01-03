@@ -8,7 +8,7 @@ echo "=========================================="
 # Step 1: Start all containers
 echo ""
 echo "Step 1: Starting Docker containers..."
-docker-compose up -d
+docker compose up -d
 
 # Wait for Ollama to be ready
 echo ""
@@ -18,12 +18,12 @@ sleep 10
 # Step 2: Check if model exists, if not pull it
 echo ""
 echo "Step 3: Checking for Ollama model..."
-MODEL_EXISTS=$(docker-compose exec -T ollama ollama list 2>/dev/null | grep -q "llama3.1:8b" && echo "yes" || echo "no")
+MODEL_EXISTS=$(docker compose exec -T ollama ollama list 2>/dev/null | grep -q "llama3.1:8b" && echo "yes" || echo "no")
 
 if [ "$MODEL_EXISTS" = "no" ]; then
     echo "Model 'llama3.1:8b' not found. Pulling it now..."
     echo "This may take several minutes depending on your internet connection..."
-    docker-compose exec ollama ollama pull llama3.1:8b
+    docker compose exec ollama ollama pull llama3.2:8b
     echo ""
     echo "✓ Model downloaded successfully!"
 else

@@ -167,8 +167,7 @@ python test_api.py
 Module4Cursor/
 ├── rag_pipeline.py      # Main RAG pipeline implementation
 ├── rag_api.py          # REST API server
-├── test_api.py         # API test script
-├── example_usage.py    # Example usage script
+├── answers_log.md   # Log of example answers
 ├── requirements.txt    # Python dependencies
 ├── README.md          # This file
 └── API_DOCUMENTATION.md # API documentation
